@@ -24,6 +24,13 @@ def app_routes():
 
 @app.route('/api/contacts', methods=['GET', 'POST'])
 def handle_contacts():
+    """API Route to handle contacts.
+    GET returns a list of contacts
+    POST is to create new contacts. Needs a form with name, email and phone fields.
+
+    Returns:
+        _type_: JSON
+    """
     if request.method == 'POST':
         # Create a new fake contact
         if request.form:
@@ -38,25 +45,24 @@ def handle_contacts():
             return jsonify({'message': 'Contact created successfully'})
         return jsonify({'message': 'Form error. Contact was not created.'})
 
-    elif request.method == 'GET':
-        # Get query parameters
-        page = int(request.args.get('page', default=0))
-        limit = int(request.args.get('limit', default=20))
+    # Get query parameters
+    page = int(request.args.get('page', default=0))
+    limit = int(request.args.get('limit', default=20))
 
-        # Calculate the pagination parameters
-        total_contacts = len(contacts)
-        start_index = page * limit
-        end_index = min(start_index + limit, total_contacts)
+    # Calculate the pagination parameters
+    total_contacts = len(contacts)
+    start_index = page * limit
+    end_index = min(start_index + limit, total_contacts)
 
-        # Prepare the response data
-        response_data = {
-            'count': total_contacts,
-            'next': page + 1 if end_index < total_contacts else None,
-            'prev': page - 1 if page > 0 else None,
-            'results': contacts[start_index:end_index]
-        }
+    # Prepare the response data
+    response_data = {
+        'count': total_contacts,
+        'next': page + 1 if end_index < total_contacts else None,
+        'prev': page - 1 if page > 0 else None,
+        'results': contacts[start_index:end_index]
+    }
 
-        return jsonify(response_data)
+    return jsonify(response_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
