@@ -2,10 +2,9 @@
 A simple Flask API that returns paginated random results 
 """
 from flask import Flask, request, jsonify
-from faker import Faker
 
 app = Flask(__name__)
-fake = Faker()
+contacts = []  # Store the list of contacts
 
 
 @app.route('/', methods=['GET'])
@@ -23,61 +22,47 @@ def app_routes():
 
     return jsonify(routes_data)
 
-
-@app.route('/api/contacts', methods=['GET'])
-def generate_fake_data():
-    """API Logic for endpoint: /api/contacts
-
-    Returns a list of randomly generated contacts, based on the 
-    "page" GET param. If no paramater is passed, default page 0 is used
-    instead.
-
-    GET params:
-        page: The seed to randomly generate data. Default 0.
-        limit: Number of results to generate. Default 20.
+@app.route('/api/contacts', methods=['GET', 'POST'])
+def handle_contacts():
+    """API Route to handle contacts.
+    GET returns a list of contacts
+    POST is to create new contacts. Needs a form with name, email and phone fields.
 
     Returns:
-        _type_: {
-            count: int
-            next: int (nº of next page)
-            prev: int (nº of previous page)
-            results: [] (list of results with size of 'limit' param)
-        }
+        _type_: JSON
     """
+    if request.method == 'POST':
+        # Create a new fake contact
+        if request.form:
+            new_contact = {
+                'name': request.form['name'] if request.form['name'] else "",
+                'email': request.form['email'] if request.form['email'] else "",
+                'phone': request.form['phone'] if request.form['phone'] else ""
+            }
+            contacts.append(new_contact)
+
+            # Return a response indicating the contact was created
+            return jsonify({'message': 'Contact created successfully'})
+        return jsonify({'message': 'Form error. Contact was not created.'})
+
     # Get query parameters
     page = int(request.args.get('page', default=0))
     limit = int(request.args.get('limit', default=20))
+
+    # Calculate the pagination parameters
+    total_contacts = len(contacts)
+    start_index = page * limit
+    end_index = min(start_index + limit, total_contacts)
+
+    # Prepare the response data
     response_data = {
-        'count': limit,
-        'next': page + 1 if page < 10000 else "",
-        'prev': page - 1 if page > 0 else 9999 if page > 10000 else "",
-        'results': None
+        'count': total_contacts,
+        'next': page + 1 if end_index < total_contacts else None,
+        'prev': page - 1 if page > 0 else None,
+        'results': contacts[start_index:end_index]
     }
 
-    if page:
-        if page > 10000:
-            page = 10000
-        elif page < 0:
-            page = 0
-    else:
-        page = 0
-    Faker.seed(page)
-
-    data = []
-    for _ in range(limit):
-        fake_data = {
-            'name': fake.name(),
-            'email': fake.email(),
-            'address': fake.address(),
-            'phone_number': fake.phone_number(),
-        }
-        data.append(fake_data)
-
-    if data:
-        response_data['results'] = data
-
     return jsonify(response_data)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
