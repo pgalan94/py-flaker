@@ -1,0 +1,28 @@
+name: Branch Deleted
+
+on:
+  delete:
+    branches:
+      - '**'
+
+jobs:
+  branch_deleted:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print deleted branch name
+        run: echo "Branch '${{ github.event.ref }}' was deleted."
+        
+      - name: Create release
+        if: startsWith(github.event.ref, 'v')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.event.ref }}
+          release_name: "py-flaker:${{ github.event.ref }}"
+          body: |
+            This release was built using automation and triggered because branch ${{ github.event.ref }} was deleted.
+
+          draft: false
+          prerelease: true
