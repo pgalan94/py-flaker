@@ -1,4 +1,4 @@
-name: Branch Deleted
+name: Create release on Branch delete
 
 on:
   delete:
