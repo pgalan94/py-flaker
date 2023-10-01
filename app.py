@@ -7,6 +7,7 @@ from faker import Faker
 app = Flask(__name__)
 fake = Faker()
 
+
 @app.route('/', methods=['GET'])
 def app_routes():
     """
@@ -34,7 +35,7 @@ def generate_fake_data():
     GET params:
         page: The seed to randomly generate data. Default 0.
         limit: Number of results to generate. Default 20.
-    
+
     Returns:
         _type_: {
             count: int
@@ -49,8 +50,8 @@ def generate_fake_data():
     response_data = {
         'count': limit,
         'next': page + 1 if page < 10000 else "",
-        'prev': page -1 if page > 0 else 9999 if page > 10000 else "",
-        'results': None 
+        'prev': page - 1 if page > 0 else 9999 if page > 10000 else "",
+        'results': None
     }
 
     if page:
@@ -59,8 +60,7 @@ def generate_fake_data():
         elif page < 0:
             page = 0
     else:
-        page=0
-        
+        page = 0
     Faker.seed(page)
 
     data = []
@@ -77,6 +77,7 @@ def generate_fake_data():
         response_data['results'] = data
 
     return jsonify(response_data)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
