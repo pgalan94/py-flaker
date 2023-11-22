@@ -10,9 +10,10 @@ contacts = []  # Store the list of contacts
 @app.route('/', methods=['GET'])
 def app_routes():
     """
-    API Root endpoint. Returns a JSON with all available endpoints.
+    APP endpoint. Returns a JSON with all available routes.
     """
     routes = {
+        '/api': 'Endpoint list',
         '/api/contacts': 'Contact list'
     }
     routes_data = {
@@ -21,6 +22,17 @@ def app_routes():
     }
 
     return jsonify(routes_data)
+
+@app.route('/api', methods=['GET'])
+def api_root():
+    """
+    API Root endpoint. Returns a JSON with all available endpoints.
+    """
+    routes = {
+       'contacts': '/api/contacts',
+    }
+
+    return jsonify(routes)
 
 @app.route('/api/contacts', methods=['GET', 'POST'])
 def handle_contacts():
@@ -32,6 +44,7 @@ def handle_contacts():
         _type_: JSON
     """
     if request.method == 'POST':
+        print(request.form)
         # Create a new fake contact
         if request.form:
             new_contact = {
