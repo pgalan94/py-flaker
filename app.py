@@ -6,6 +6,12 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 contacts = []  # Store the list of contacts
 
+def check_body_param(data, k):
+    if k in data.keys():
+        return True
+    return False
+    
+
 
 @app.route('/', methods=['GET'])
 def app_routes():
@@ -35,9 +41,9 @@ def handle_contacts():
         # Create a new fake contact
         if request.form:
             new_contact = {
-                'name': request.form['name'] if request.form['name'] else "",
-                'email': request.form['email'] if request.form['email'] else "",
-                'phone': request.form['phone'] if request.form['phone'] else ""
+                'name': request.form['name'] if check_body_param(request.form, 'name') else "",
+                'email': request.form['email'] if check_body_param(request.form, 'email') else "",
+                'phone': request.form['phone'] if check_body_param(request.form, 'phone') else ""
             }
             contacts.append(new_contact)
 
